@@ -1,13 +1,13 @@
 spring:
   # app 이름
   application:
-    name: demo
+    name: application
   # DB연결 정보
   datasource:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     url: jdbc:oracle:thin:@localhost:1521/xe
-    username: c##product
-    password: product1234
+    username: c##bbs
+    password: bbs1234
   #ai
   ai:
     openai:

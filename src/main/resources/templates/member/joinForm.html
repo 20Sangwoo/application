@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <link rel="stylesheet" href="" th:href="@{/css/common.css}">
+</head>
+<body>
+  <h3>회원가입</h3>
+  <form action="" th:method="post" th:object="${joinForm}">
+    <div th:if="${#fields.hasGlobalErrors()}">
+      <p class="global-err" th:each="err:${#fields.globalErrors()}" th:text="${err}"></p>
+    </div>
+    <div>
+      <label th:for="email">이메일</label><input type="text" th:field="*{email}">
+      <div class="field-err" th:each="err : ${#fields.errors('email')}">
+        <span th:text="${err}"></span>
+      </div>
+    </div>
+    <div>
+      <label th:for="password">비밀번호</label><input type="password" th:field="*{password}">
+      <div class="field-err" th:each="err : ${#fields.errors('password')}">
+        <span th:text="${err}"></span>
+      </div>
+    </div>
+    <div>
+      <label th:for="passwdChk">비밀번호확인</label><input type="password" th:field="*{passwdChk}">
+      <div class="field-err" th:each="err : ${#fields.errors('passwdChk')}">
+        <span th:text="${err}"></span>
+      </div>
+    </div>
+    <div><label th:for="tel">전화번호</label><input type="text" th:field="*{tel}"></div>
+    <div><label th:for="nickname">별칭</label><input type="text" th:field="*{nickname}"></div>
+
+    <div><button>가입</button><button type="reset">취소</button></div>
+  </form>
+</body>
+</html>
