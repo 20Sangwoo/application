@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 목록</title>
+</head>
+<body>
+<h1>게시글 목록</h1>
+
+<!-- 버튼 -->
+<div>
+  <button id="btnDel">삭제</button>
+  <button type="button" onclick="location.href='/post/add'">글쓰기</button>
+</div>
+
+<!-- 게시글 목록 -->
+<form id="frm" th:action="@{/post/del}" method="post">
+  <div th:each="post : ${pageResult.data}">
+    <input type="checkbox" name="postIds" th:value="${post.postId}" />
+    <a th:href="@{/post/{id}(id=${post.postId})}" th:text="${post.title}">제목</a>
+
+    <span th:if="${post.createdAt == post.updatedAt}">
+      작성일: <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    </span>
+    <span th:if="${post.createdAt != post.updatedAt}">
+      수정일: <span th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+    </span>
+    <br/>
+  </div>
+</form>
+
+<!-- 페이징 -->
+<div>
+  <a th:if="${pageResult.currentPage > 1}"
+     th:href="@{/post/list(page=${pageResult.currentPage - 1})}">이전</a>
+
+  <span th:each="i : ${#numbers.sequence(pageResult.startPage, pageResult.endPage)}">
+    <a th:if="${i != pageResult.currentPage}"
+       th:href="@{/post/list(page=${i})}"
+       th:text="${i}"></a>
+    <span th:if="${i == pageResult.currentPage}"
+          th:text="${i}"
+          style="font-weight:bold;"></span>
+  </span>
+
+  <a th:if="${pageResult.currentPage < pageResult.totalPages}"
+     th:href="@{/post/list(page=${pageResult.currentPage + 1})}">다음</a>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<dialog id="modalDel">
+  <p>게시글을 삭제하시겠습니까?</p>
+  <button class="btnYes">예</button>
+  <button class="btnNo">아니오</button>
+</dialog>
+
+<script>
+  const $btnDel = document.getElementById('btnDel');
+  const $frm = document.getElementById('frm');
+  const $modal = document.getElementById('modalDel');
+  const $btnYes = document.querySelector('.btnYes');
+  const $btnNo = document.querySelector('.btnNo');
+
+  $btnDel.addEventListener('click', () => {
+    const checked = document.querySelectorAll('input[name="postIds"]:checked');
+    if (checked.length === 0) {
+      alert('삭제할 게시글을 선택하세요.');
+      return;
+    }
+    $modal.showModal();
+  });
+
+  $modal.addEventListener('close', () => {
+    if ($modal.returnValue === 'yes') {
+      $frm.submit();
+    }
+  });
+
+  $btnYes.addEventListener('click', () => $modal.close('yes'));
+  $btnNo.addEventListener('click', () => $modal.close('no'));
+</script>
+
+</body>
+</html>

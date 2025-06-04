@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>게시글 상세</title>
+</head>
+<body>
+<h3>게시글 상세</h3>
+
+<form action="" method="" th:object="${post}">
+  <div>
+    <label>게시글ID</label>
+    <input type="text" name="postId" id="postId" th:field="*{postId}" readonly />
+  </div>
+  <div>
+    <label>제목</label>
+    <input type="text" name="title" id="title" th:field="*{title}" readonly />
+  </div>
+  <div>
+    <label>내용</label>
+    <textarea id="content" th:field="*{content}" readonly></textarea>
+  </div>
+  <div>
+    <label>작성자</label>
+    <input type="text" name="author" id="author" th:field="*{author}" readonly />
+  </div>
+  <div>
+    <label>작성일</label>
+    <input type="text" id="createdAt" th:value="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}" readonly />
+  </div>
+  <div>
+    <button type="button" id="btnUpdate">수정</button>
+    <button type="button" id="btnDelete">삭제</button>
+    <button type="button" id="btnList">목록</button>
+  </div>
+</form>
+
+<hr />
+<h4>댓글 목록</h4>
+<div th:if="${comments != null}">
+  <ul>
+    <li th:each="comment : ${comments}">
+      <p>
+        <strong th:text="${comment.writer}">작성자</strong>:
+        <span th:text="${comment.content}">댓글 내용</span>
+      </p>
+      <p>
+        <small th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</small>
+        <span th:if="${loginMember != null and loginMember.nickname == comment.writer}">
+          <a th:href="@{/comments/{id}/edit(id=${comment.commentId})}">수정</a> |
+          <a th:href="@{/comments/{id}/del(id=${comment.commentId})}" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+        </span>
+      </p>
+    </li>
+  </ul>
+</div>
+
+<div th:if="${totalPages > 1}">
+  <nav>
+    <ul style="list-style:none; padding:0; display:flex; gap:5px;">
+      <li th:if="${page > 1}">
+        <a th:href="@{/post/{postId}(postId=${post.postId}, page=${page - 1}, size=${size})}">이전</a>
+      </li>
+      <li th:each="i : ${#numbers.sequence(1, totalPages)}">
+        <a th:href="@{/post/{postId}(postId=${post.postId}, page=${i}, size=${size})}"
+           th:text="${i}"
+           th:classappend="${i == page} ? 'current-page' : ''"></a>
+      </li>
+      <li th:if="${page < totalPages}">
+        <a th:href="@{/post/{postId}(postId=${post.postId}, page=${page + 1}, size=${size})}">다음</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<hr />
+<div th:if="${loginMember != null}">
+  <h4>댓글 작성</h4>
+  <form th:action="@{/comments/new}" method="post" th:object="${newComment}">
+    <input type="hidden" th:field="*{postId}" />
+    <textarea th:field="*{content}" placeholder="댓글 내용을 입력하세요"></textarea>
+    <br />
+    <button type="submit">댓글 작성</button>
+  </form>
+</div>
+<div th:if="${loginMember == null}">
+  <p><a href="/login">로그인</a> 후 댓글 작성이 가능합니다.</p>
+</div>
+
+<dialog id="modalDel">
+  <p>삭제하시겠습니까?</p>
+  <button class="btnYes">예</button>
+  <button class="btnNo">아니오</button>
+</dialog>
+
+<script>
+  // 수정 버튼
+  const $btnUpdate = document.getElementById('btnUpdate');
+  $btnUpdate.addEventListener('click', e => {
+    const $postId = document.getElementById('postId');
+    const postId = $postId.value;
+    location.href = `/post/${postId}/edit`;  // 예: /post/1/edit
+  }, false);
+
+  // 삭제 버튼
+  const $btnDelete = document.getElementById('btnDelete');
+  $btnDelete.addEventListener('click', e => {
+    const $postId = document.getElementById('postId');
+    const postId = $postId.value;
+
+    const $modal = document.getElementById('modalDel');
+    const $btnYes = document.querySelector('.btnYes');
+    const $btnNo = document.querySelector('.btnNo');
+
+    $modal.showModal();
+
+    $modal.addEventListener('close', event => {
+      if ($modal.returnValue === 'yes') {
+        location.href = `/post/${postId}/del`;
+      }
+    });
+
+    $btnYes.addEventListener('click', e => $modal.close('yes'));
+    $btnNo.addEventListener('click', e => $modal.close('no'));
+  });
+
+  // 목록 버튼
+  const $btnList = document.getElementById('btnList');
+  $btnList.addEventListener('click', e => {
+    location.href = '/post/list';
+  }, false);
+</script>
+
+</body>
+</html>
